@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/index.css" />
+        <title>A4D Level Editor</title>
+        <script
+            src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            window.onload = function () {
+                twemoji.parse(document.body, {
+                    folder: "svg",
+                    ext: ".svg",
+                });
+            };
+        </script>
+        <style>
+            img.emoji {
+                width: 3em;
+                pointer-events: none;
+                -webkit-user-select: none;        
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        </style>
+        <link
+            rel="apple-touch-icon"
+            sizes="120x120"
+            href="/favicons/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicons/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicons/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/favicons/site.webmanifest" />
+        <link
+            rel="mask-icon"
+            href="/favicons/safari-pinned-tab.svg"
+            color="#5bbad5"
+        />
+        <link rel="shortcut icon" href="/favicons/favicon.ico" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta
+            name="msapplication-config"
+            content="/favicons/browserconfig.xml"
+        />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <div id="Top">
+            <h1>Appel for DISCORD Level Editor</h1>
+            <a href="https://wasteof.money/posts/62d300eb67a84704d267027b">Help</a>
+        </div>
+        <input type="text" id="Width" type="number" placeholder="Width" />
+        <input type="text" id="Height" type="number" placeholder="Height" />
+        <button id="Create">Create</button>
+        <br>
+        <section id="Level"></section>
+        <br>
+        <button id="Import">Import File</button>
+        <button id="Export">Export File</button>
+        <script>
+            let width = document.getElementById("Width");
+            let height = document.getElementById("Height");
+            let createButton = document.getElementById("Create");
+            let levelSection = document.getElementById("Level");
+            let levelObject = {
+                width: 0,
+                height: 0,
+                obstacles: [],
+                apples: [],
+                enemies: [],
+            }
+            const download = (filename, text) => {
+                let element = document.createElement("a");
+                element.setAttribute(
+                    "href",
+                    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+                );
+                element.setAttribute("download", filename);
+                element.style.display = "none";
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
+            const importFile = async () => {
+                let input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".a4d";
+                input.click();
+                input.onchange = async () => {
+                    let file = JSON.parse(await input.files[0].text())
+                    levelSection.innerHTML = "";
+                    for (let i = 0; i < file.height; i++) {
+                        let div = document.createElement("div");
+                        div.classList.add("row");
+                        for (let j = 0; j < file.width; j++) {
+                            let tile = document.createElement("div");
+                            tile.classList.add("tile");
+                            if (i < file.height - 2) {
+                                if (file.obstacles.some(obstacle => obstacle.x == j && obstacle.y == i)) {
+                                    tile.classList.add("obstacle");
+                                    tile.innerText = "🟩"
+                                } else if (file.apples.some(apple => apple.x == j && apple.y == i)) {
+                                    tile.classList.add("apple");
+                                    tile.innerText = "🍏"
+                                } else if (file.enemies.some(enemy => enemy.x == j && enemy.y == i)) {
+                                    tile.classList.add("enemy");
+                                    tile.innerText = "🟥"
+                                } else {
+                                    tile.innerText = "🟦"
+                                    tile.classList.add("sky")
+                                }
+                            } else {
+                                tile.innerText = "🟩"
+                                tile.classList.add("ground")
+                            }
+                            tile.id = `${i}-${j}`;
+                            div.appendChild(tile);
+                        }
+                        levelSection.appendChild(div);
+                        twemoji.parse(document.body, {
+                            folder: "svg",
+                            ext: ".svg",
+                        });
+                    }
+                }
+            }
+            createButton.addEventListener("click", () => {
+                if (isNaN(width.value) || isNaN(height.value)) {
+                    alert("Enter a valid Number!");
+                    levelSection.innerHTML = "Invalid number!";
+                    return;
+                } else {
+                    alert("Level Created!");
+                }
+                levelObject.width = width.value;
+                levelObject.height = height.value;
+                levelSection.innerHTML = "";
+                for (let i = 0; i < height.value; i++) {
+                    let div = document.createElement("div");
+                    div.classList.add("row");
+                    for (let j = 0; j < width.value; j++) {
+                        let tile = document.createElement("div");
+                        tile.classList.add("tile");
+                        if (i < height.value - 2) {
+                            tile.innerText = "🟦"
+                            tile.classList.add("sky")
+                        } else {
+                            tile.innerText = "🟩"
+                            tile.classList.add("ground")
+                        }
+                        tile.id = `${i}-${j}`;
+                        div.appendChild(tile);
+                    }
+                    levelSection.appendChild(div);
+                }
+                let classElements = document.getElementsByClassName("tile")
+                for (let i = 0; i < classElements.length; i++) {
+                    classElements[i].addEventListener("click", () => {
+                        console.log(event.shiftKey)
+                        if (classElements[i].classList.contains("sky")) {
+                            if (classElements[i].classList.contains("obstacle")) {
+                                classElements[i].classList.remove("obstacle")
+                                classElements[i].innerText = "🟦"
+                                let objectIndex = levelObject.obstacles.findIndex((element) => {
+                                    return element.x == classElements[i].id.split("-")[1] && element.y == classElements[i].id.split("-")[0]
+                                })
+                                levelObject.obstacles.splice(objectIndex, 1)
+                            } else if (classElements[i].classList.contains("enemy")) {
+                                classElements[i].classList.remove("enemy")
+                                classElements[i].innerText = "🟦"
+                                let objectIndex = levelObject.enemies.findIndex((element) => {
+                                    return element.x == classElements[i].id.split("-")[1] && element.y == classElements[i].id.split("-")[0]
+                                })
+                                levelObject.enemies.splice(objectIndex, 1)
+                            } else if (classElements[i].classList.contains("apple")) {
+                                classElements[i].classList.remove("apple")
+                                classElements[i].innerText = "🟦"
+                                let objectIndex = levelObject.apples.findIndex((element) => {
+                                    return element.x == classElements[i].id.split("-")[1] && element.y == classElements[i].id.split("-")[0]
+                                })
+                                levelObject.apples.splice(objectIndex, 1)
+                            } else {
+                                if (event.shiftKey) {
+                                    classElements[i].classList.add("enemy")
+                                    classElements[i].innerText = "🟥"
+                                    levelObject.enemies.push({
+                                        x: classElements[i].id.split("-")[1],
+                                        y: classElements[i].id.split("-")[0],
+                                    })
+                                } else if (event.altKey) {
+                                    classElements[i].classList.add("apple")
+                                    classElements[i].innerText = "🍏"
+                                    levelObject.apples.push({
+                                        x: classElements[i].id.split("-")[1],
+                                        y: classElements[i].id.split("-")[0],
+                                    })
+                                } else {
+                                    classElements[i].classList.add("obstacle")
+                                    classElements[i].innerText = "🟩"
+                                    levelObject.obstacles.push({
+                                        x: parseInt(classElements[i].id.split("-")[1]),
+                                        y: parseInt(classElements[i].id.split("-")[0]),
+                                    });
+                                }
+                            }
+                        }
+                        twemoji.parse(document.body, {
+                            folder: "svg",
+                            ext: ".svg",
+                        });
+                    })
+                }
+                twemoji.parse(document.body, {
+                    folder: "svg",
+                    ext: ".svg",
+                });
+            });
+            document.getElementById("Export").addEventListener("click", () => {
+                download("level.a4d", JSON.stringify(levelObject));
+            });
+            document.getElementById("Import").addEventListener("click", () => {
+                importFile();
+            })
+        </script>
+    </body>
+</html>
