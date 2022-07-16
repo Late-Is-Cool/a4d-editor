@@ -23,6 +23,32 @@ body {
     font-family: "Uni Sans Bold";
 }
 
+nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+    color: white;
+    font-family: "Uni Sans Bold";
+}
+
+nav ul li {
+    list-style: none;
+    display: inline-block;
+    margin: 10px;
+    color: white;
+    font-family: "Uni Sans Bold";
+}
+
+nav ul li a {
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
 a {
     color: white;
     text-decoration: none;
