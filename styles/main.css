@@ -104,3 +104,33 @@ button:active {
     margin: 0 5px 0 10px;
 }
 
+#Warning {
+    margin: 10px;
+    color: red;
+    font-size: 20px;
+    font-family: "Uni Sans Bold";
+    display: none;
+}
+
+#File-Stuff {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+    font-family: "Uni Sans Bold";
+}
+
+#File-Stuff input {
+    background-color: #2F3136;
+    border: none;
+    color: white;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+#File-Stuff p {
+    margin: -8px;
+    color: white;
+    font-family: "Uni Sans Bold";
+}
